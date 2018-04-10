@@ -1,0 +1,67 @@
+version: '3.3'
+
+volumes:
+  webroot:
+    driver: local
+
+services:
+  app:
+    build:
+      context: ../../
+      dockerfile: docker/release/Dockerfile
+    links:
+      - db
+    environment:
+      DJANGO_SETTINGS_MODULE: pollsend.settings.release
+      MYSQL_HOST: db
+      MYSQL_USER: polls
+      MYSQL_PASSWORD: polls123
+    volumes:
+      - webroot:/var/www/pollsend
+    command:
+      - uwsgi
+      - "--socket /var/www/pollsend/pollsend.sock"
+      - "--chmod-socket=666"
+      - "--module pollsend.wsgi"
+      - "--master"
+      - "--die-on-term"
+
+  test:
+    image: lolubyte/pollsend-specs
+    links:
+      - nginx
+    environment:
+      URL: http://nginx:8000/polls
+      JUNIT_REPORT_PATH: /reports/acceptance.xml
+      JUNIT_REPORT_STACK: 1
+    command: --reporter mocha-jenkins-reporter
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    links:
+      - app
+    ports:
+      - "8000:8000"
+    volumes:
+      - webroot:/var/www/pollsend
+
+  db:
+    image: mysql:5.6
+    expose:
+      - "3306"
+    environment:
+      MYSQL_DATABASE: pollsdb
+      MYSQL_USER: polls
+      MYSQL_PASSWORD: polls123 
+      MYSQL_ROOT_PASSWORD: polls123
+
+  agent:
+    image: lolubyte/ansible
+    links:
+      - db
+    environment:
+      PROBE_HOST: "db"
+      PROBE_PORT: "3306"
+    command: ["probe.yml"]

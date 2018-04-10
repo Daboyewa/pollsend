@@ -7,3 +7,15 @@ lbitc-virt
 #Ignore SQlite database files
 *.sqlites3
 
+#Ignore test artifacts
+src/.coverega
+src/*.xml
+
+#Ignore eggs
+src/*egg-info
+
+#Ignore build and Test artifact
+target
+reports
+
+.admin

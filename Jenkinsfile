@@ -1,7 +1,7 @@
 node {
-	checkout([$class: 'GitSCM', branches: [[name: '*/master']], doGenerateSubmoduleConfigurations: false, extensions: [],  submoduleCfg: [], userRemoteConfigs: [[url: 'https://github.com/lolubyte/pollsend.git']]])  
+	checkout scm 
     
-    try {
+    	try {
         	stage('Run unit/integration test') {
         	sh 'make test'
   	  }       

@@ -31,8 +31,8 @@ node {
         	step([$class: 'JUnitResultArchiver', testResults: '**/reports/*.xml'])
           }
                 stage('clean up') {
-                sh 'sudo make clean'
-                sh 'sudo make logout'
+                sh 'make clean'
+                sh 'make logout'
          }
      }
 }
